@@ -1,0 +1,14 @@
+{
+  "name": "mayushii-bot-js",
+  "version": "1.0.0",
+  "description": "Tuturu!",
+  "main": "src/Mayushii.js",
+  "scripts": {
+    "start": "node src/Mayushii.js"
+  },
+  "author": "Trent Davies",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "11.2.1"
+  }
+}
