@@ -15,7 +15,7 @@ let MayushiiProcessor = class MayushiiProcessor {
 
     static removeMessages(guild) {
         console.log('Will remove messages in ' + guild.name + '.');
-        MayushiiProcessor._guildToRemoveMessages[guild] = true;
+        MayushiiProcessor._guildIDToRemoveMessages[guild.id] = true;
     }
 
     static join(voiceChannel) {
@@ -52,8 +52,8 @@ let MayushiiProcessor = class MayushiiProcessor {
     }
 
     static stop(voiceChannel) {
-        if (voiceChannel.connection && voiceChannel.connection.dispatcher) {
-            voiceChannel.connection.dispatcher.pause();
+        if (MayushiiProcessor._guildIDDispatchers[voiceChannel.guild.id]) {
+            MayushiiProcessor._guildIDDispatchers[voiceChannel.guild.id].pause();
         }
     }
 
@@ -64,13 +64,19 @@ let MayushiiProcessor = class MayushiiProcessor {
             return;
         }
 
-        if (voiceChannel.connection && voiceChannel.connection.dispatcher) {
-            voiceChannel.connection.dispatcher.pause();
+        if (MayushiiProcessor._guildIDDispatchers[voiceChannel.guild.id]) {
+            MayushiiProcessor._guildIDDispatchers[voiceChannel.guild.id].pause();
         }
 
         voiceChannel.guild.fetchMember(MayushiiProcessor._client.user).then(clientGuildMember => {
-            let foundInChannel = false;
+            let playFile = (connection, absolutePath) => {
+                MayushiiProcessor._guildIDDispatchers[voiceChannel.guild.id] = voiceChannel.connection.playFile(absolutePath);
+                MayushiiProcessor._guildIDDispatchers[voiceChannel.guild.id].on('start', () => {
+                    voiceChannel.connection.player.streamingData.pausedTime = 0;
+                });
+            };
 
+            let foundInChannel = false;
             for (let i = 0; i < voiceChannel.members.length; i++) {
                 let guildMember = voiceChannel.members[i];
                 if (guildMember === clientGuildMember) {
@@ -80,14 +86,14 @@ let MayushiiProcessor = class MayushiiProcessor {
             }
 
             if (!foundInChannel) {
-                voiceChannel.join().then(() => {
-                    voiceChannel.connection.playFile(absolutePath);
+                voiceChannel.join().then(connection => {
+                    playFile(connection, absolutePath);
                 });
 
                 return;
             }
 
-            voiceChannel.connection.playFile(absolutePath);
+            playFile(voiceChannel.connection, absolutePath);
         });
     }
 
@@ -108,6 +114,7 @@ let MayushiiProcessor = class MayushiiProcessor {
 
 MayushiiProcessor._client = null;
 MayushiiProcessor._folders = [path.resolve('assets/tuturus')];
-MayushiiProcessor._guildToRemoveMessages = {};
+MayushiiProcessor._guildIDDispatchers = {};
+MayushiiProcessor._guildIDToRemoveMessages = {};
 
 module.exports = MayushiiProcessor;
