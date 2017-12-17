@@ -48,7 +48,7 @@ client.on('voiceStateUpdate', (oldGuildMember, newGuildMember) => {
 });
 
 client.on('message', message => {
-    if (message.content.toLowerCase().contains('mayushii') || message.content.toLowerCase().contains('tuturu')) {
+    if (message.content.toLowerCase().includes('mayushii') || message.content.toLowerCase().includes('tuturu')) {
         message.react('heart');
     }
 
