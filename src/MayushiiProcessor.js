@@ -18,6 +18,10 @@ let MayushiiProcessor = class MayushiiProcessor {
         MayushiiProcessor._guildIDToRemoveMessages[guild.id] = true;
     }
 
+    static shouldRemoveMessages(guild) {
+        return !!MayushiiProcessor._guildIDToRemoveMessages[guild.id];
+    }
+
     static join(voiceChannel) {
         voiceChannel.join().then(() => {
             MayushiiProcessor.tuturu(voiceChannel);
@@ -25,17 +29,23 @@ let MayushiiProcessor = class MayushiiProcessor {
     }
 
     static play(voiceChannel, sound) {
-        for (let i = 0; i < FILE_TYPES.length; i++) {
-            let type = FILE_TYPES[i];
+        let guildNames = [voiceChannel.guild.name, null];
+        for (let i = 0; i < guildNames.length; i++) {
+            let guildName = guildNames[i];
+            let guildNamePart = guildName ? guildName + '/' : '';
 
-            for (let a = 0; a < MayushiiProcessor._folders.length; a++) {
-                let folder = MayushiiProcessor._folders[a];
-                let absolutePath = path.resolve(folder + '/' + sound + '.' + type);
+            for (let a = 0; a < FILE_TYPES.length; a++) {
+                let type = FILE_TYPES[a];
 
-                if (fs.existsSync(absolutePath)) {
-                    if (MayushiiProcessor._isValidFile(absolutePath)) {
-                        MayushiiProcessor._play(voiceChannel, absolutePath);
-                        return;
+                for (let b = 0; b < MayushiiProcessor._folders.length; b++) {
+                    let folder = MayushiiProcessor._folders[b];
+                    let absolutePath = path.resolve(folder + '/' + guildNamePart + sound + '.' + type);
+
+                    if (fs.existsSync(absolutePath)) {
+                        if (MayushiiProcessor._isValidFile(absolutePath)) {
+                            MayushiiProcessor._play(voiceChannel, absolutePath);
+                            return;
+                        }
                     }
                 }
             }

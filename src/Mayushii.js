@@ -4,6 +4,8 @@ const Permissions = Discord.Permissions;
 const client = new Discord.Client();
 const MayushiiProcessor = require('./MayushiiProcessor.js');
 
+const COMMAND_INDICATORS = {'~': true, '?': true};
+
 // login
 let token = fs.readFileSync('secret.txt', 'utf8');
 if (!token) {
@@ -39,6 +41,20 @@ client.on('ready', () => {
 });
 
 client.on('voiceStateUpdate', (oldGuildMember, newGuildMember) => {
+    // leave the voice channel if everyone else has
+    let guild = (oldGuildMember || newGuildMember).guild;
+    if (guild) {
+        guild.fetchMember(client.user).then(guildMember => {
+            let clientVoiceChannel = guildMember.voiceChannel;
+            if (clientVoiceChannel) {
+                if (clientVoiceChannel.members.array().length === 0) {
+                    clientVoiceChannel.leave();
+                }
+            }
+        });
+    }
+
+    // play audio clip
     let voiceChannel = newGuildMember.voiceChannel;
     if (!voiceChannel) {
         return;
@@ -53,7 +69,7 @@ client.on('message', message => {
     }
 
     // this is not a command for mayu
-    if (message.content.length === 0 || message.content.charAt(0) !== '?') {
+    if (message.content.length === 0 || !COMMAND_INDICATORS[message.content.charAt(0)]) {
         return;
     }
 
@@ -62,7 +78,9 @@ client.on('message', message => {
         return;
     }
 
-    message.delete();
+    if (MayushiiProcessor.shouldRemoveMessages(message.guild)) {
+        message.delete();
+    }
 
     let commandSwitch = (voiceChannel, messageParts) => {
         let command = messageParts[0];
@@ -109,10 +127,16 @@ client.on('message', message => {
     }
 });
 
-process.on('beforeExit', () => {
+const onExit = () => {
     client.destroy();
-});
+    process.exit(0);
+};
 
-process.on('exit', () => {
-    client.destroy();
-});
+process.on('beforeExit', onExit);
+process.on('exit', onExit);
+process.on('SIGINT', onExit);
+process.on('SIGUSR1', onExit);
+process.on('SIGUSR2', onExit);
+process.on('uncaughtException', onExit);
+
+process.stdin.resume();
