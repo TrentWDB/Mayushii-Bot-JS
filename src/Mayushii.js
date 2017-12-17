@@ -101,6 +101,7 @@ client.on('message', message => {
                 voiceChannel = guildMember.voiceChannel;
                 commandSwitch(voiceChannel, messageParts);
             });
+        } else {
             message.reply('You\'re not in a server.');
         }
     } else {
