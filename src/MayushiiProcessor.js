@@ -53,7 +53,7 @@ let MayushiiProcessor = class MayushiiProcessor {
 
     static stop(voiceChannel) {
         if (voiceChannel.connection && voiceChannel.connection.dispatcher) {
-            voiceChannel.connection.dispatcher.end();
+            voiceChannel.connection.dispatcher.pause();
         }
     }
 
@@ -65,7 +65,7 @@ let MayushiiProcessor = class MayushiiProcessor {
         }
 
         if (voiceChannel.connection && voiceChannel.connection.dispatcher) {
-            voiceChannel.connection.dispatcher.end();
+            voiceChannel.connection.dispatcher.pause();
         }
 
         voiceChannel.guild.fetchMember(MayushiiProcessor._client.user).then(clientGuildMember => {
