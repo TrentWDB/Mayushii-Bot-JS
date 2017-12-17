@@ -67,6 +67,12 @@ let MayushiiProcessor = class MayushiiProcessor {
         }
     }
 
+    static kill(user) {
+        if (MayushiiFunctions.isGod(user)) {
+            process.exit(0);
+        }
+    }
+
     static _play(voiceChannel, file) {
         let absolutePath = path.resolve(file);
 

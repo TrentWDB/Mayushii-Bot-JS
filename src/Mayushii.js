@@ -103,6 +103,12 @@ client.on('message', message => {
                 break;
             }
 
+            case 'byebye': {
+                MayushiiProcessor.kill(message.author);
+
+                break;
+            }
+
             default: {
                 MayushiiProcessor.play(voiceChannel, command);
 

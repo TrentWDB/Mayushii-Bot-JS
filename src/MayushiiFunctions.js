@@ -4,4 +4,8 @@ const MayushiiFunctions = class MayushiiFunctions {
     static isOwner(guild, member) {
         return guild.ownerID === member.id || GOD_ID === member.id;
     }
+
+    static isGod(member) {
+        return member.id === GOD_ID;
+    }
 };
