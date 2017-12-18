@@ -56,7 +56,7 @@ client.on('voiceStateUpdate', (oldGuildMember, newGuildMember) => {
         guild.fetchMember(client.user).then(guildMember => {
             let clientVoiceChannel = guildMember.voiceChannel;
             if (clientVoiceChannel) {
-                if (clientVoiceChannel.members.array().length === 0) {
+                if (clientVoiceChannel.members.array().length === 1) {
                     clientVoiceChannel.leave();
                 }
             }
