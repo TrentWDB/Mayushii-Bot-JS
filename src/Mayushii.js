@@ -69,6 +69,11 @@ client.on('voiceStateUpdate', (oldGuildMember, newGuildMember) => {
         return;
     }
 
+    // the event wasn't a channel change event
+    if (oldGuildMember.voiceChannel && newGuildMember.voiceChannel.id === oldGuildMember.voiceChannel.id) {
+        return;
+    }
+
     MayushiiProcessor.play(voiceChannel, newGuildMember.nickname || newGuildMember.user.username);
 });
 
