@@ -29,6 +29,15 @@ MayushiiProcessor.initialize(client, folders);
 
 client.on('ready', () => {
     console.log('Logged in.');
+    if (process.pid) {
+        console.log('Writing PID to pid.txt...');
+        fs.writeFile('pid.txt', '' + process.pid, 'utf8', () => {
+            console.log('Done writing PID.');
+        });
+    } else {
+        console.log('Cannot find PID of Mayushii.');
+    }
+
 
     client.guilds.forEach(guild => {
         // remove message from server if have permission
@@ -144,5 +153,3 @@ process.on('SIGINT', onExit);
 process.on('SIGUSR1', onExit);
 process.on('SIGUSR2', onExit);
 process.on('uncaughtException', onExit);
-
-process.stdin.resume();
