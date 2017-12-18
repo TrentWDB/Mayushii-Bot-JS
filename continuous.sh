@@ -1,16 +1,19 @@
 #!/bin/bash
 
-pidfile="pid.txt"
-pid=$(<"$pidfile")
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd $DIR
 
-if ps -p $pid
+PIDFILE="pid.txt"
+PID=$(<"$PIDFILE")
+
+if ps -p $PID
 then
     exit
 fi
 
-pathsfile="paths.txt"
-paths=$(<"$pathsfile")
+PATHSFILE="paths.txt"
+PATHS=$(<"$PATHSFILE")
 
 git pull origin master
 npm install
-npm start $paths
+npm start $PATHS
