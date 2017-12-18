@@ -49,6 +49,11 @@ client.on('ready', () => {
     });
 });
 
+client.on('error', error => {
+    console.error('Error! ', error);
+    process.exit(1);
+});
+
 client.on('voiceStateUpdate', (oldGuildMember, newGuildMember) => {
     // leave the voice channel if everyone else has
     let guild = (oldGuildMember || newGuildMember).guild;
