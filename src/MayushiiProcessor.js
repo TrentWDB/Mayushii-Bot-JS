@@ -73,6 +73,23 @@ let MayushiiProcessor = class MayushiiProcessor {
         }
     }
 
+    static volume(user, message, volume) {
+        let guild = message.guild;
+        if (!guild) {
+            message.reply('You need to tell me this in a server!');
+            return;
+        }
+
+        if (volume < 0 || volume > 1) {
+            volume = Math.min(1, Math.max(0, volume));
+            message.reply('That volume wasn\'t between 0 and 1! I set it to ' + volume + '.');
+        } else {
+            message.reply('I set my volume to ' + volume + '!');
+        }
+
+        MayushiiProcessor._guildIDToVolume[guild.id] = volume;
+    }
+
     static _play(voiceChannel, file) {
         let absolutePath = path.resolve(file);
 
@@ -86,7 +103,10 @@ let MayushiiProcessor = class MayushiiProcessor {
 
         voiceChannel.guild.fetchMember(MayushiiProcessor._client.user).then(clientGuildMember => {
             let playFile = (connection, absolutePath) => {
+                let volume = MayushiiProcessor._guildIDToVolume[voiceChannel.guild.id] || 1;
+
                 MayushiiProcessor._guildIDDispatchers[voiceChannel.guild.id] = voiceChannel.connection.playFile(absolutePath);
+                MayushiiProcessor._guildIDDispatchers[voiceChannel.guild.id].setVolume(volume);
                 MayushiiProcessor._guildIDDispatchers[voiceChannel.guild.id].on('start', () => {
                     voiceChannel.connection.player.streamingData.pausedTime = 0;
                 });
@@ -132,5 +152,6 @@ MayushiiProcessor._client = null;
 MayushiiProcessor._folders = [path.resolve('assets/tuturus')];
 MayushiiProcessor._guildIDDispatchers = {};
 MayushiiProcessor._guildIDToRemoveMessages = {};
+MayushiiProcessor._guildIDToVolume = {};
 
 module.exports = MayushiiProcessor;

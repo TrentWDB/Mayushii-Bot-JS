@@ -38,7 +38,6 @@ client.on('ready', () => {
         console.log('Cannot find PID of Mayushii.');
     }
 
-
     client.guilds.forEach(guild => {
         // remove message from server if have permission
         guild.fetchMember(client.user).then(guildMember => {
@@ -97,9 +96,10 @@ client.on('message', message => {
         return;
     }
 
-    if (MayushiiProcessor.shouldRemoveMessages(message.guild)) {
-        message.delete();
-    }
+    // if (MayushiiProcessor.shouldRemoveMessages(message.guild)) {
+    //     message.delete();
+    // }
+    message.delete();
 
     let commandSwitch = (voiceChannel, messageParts) => {
         let command = messageParts[0];
@@ -118,6 +118,20 @@ client.on('message', message => {
 
             case 'stop': {
                 MayushiiProcessor.stop(voiceChannel);
+
+                break;
+            }
+
+            case 'volume': {
+                let volume = 1;
+                try {
+                    volume = Number.parseFloat(messageParts[1]);
+                } catch (error) {
+                    message.reply('I couldn\'t read the volume from your message!');
+                    return;
+                }
+
+                MayushiiProcessor.volume(message.author, message, volume);
 
                 break;
             }
