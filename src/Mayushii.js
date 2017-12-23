@@ -50,7 +50,7 @@ client.on('ready', () => {
 
 client.on('error', error => {
     console.error('Error! ', error);
-    process.exit(1);
+    // process.exit(1);
 });
 
 client.on('voiceStateUpdate', (oldGuildMember, newGuildMember) => {
@@ -78,7 +78,7 @@ client.on('voiceStateUpdate', (oldGuildMember, newGuildMember) => {
         return;
     }
 
-    MayushiiProcessor.play(voiceChannel, newGuildMember.nickname || newGuildMember.user.username);
+    MayushiiProcessor.play(null, voiceChannel, newGuildMember.nickname || newGuildMember.user.username);
 });
 
 client.on('message', message => {
@@ -105,19 +105,19 @@ client.on('message', message => {
         let command = messageParts[0];
         switch (command) {
             case 'join': {
-                MayushiiProcessor.join(voiceChannel);
+                MayushiiProcessor.join(message, voiceChannel);
 
                 break;
             }
 
             case 'tuturu': {
-                MayushiiProcessor.tuturu(voiceChannel, messageParts[1]);
+                MayushiiProcessor.tuturu(message, voiceChannel, messageParts[1]);
 
                 break;
             }
 
             case 'stop': {
-                MayushiiProcessor.stop(voiceChannel);
+                MayushiiProcessor.stop(message, voiceChannel);
 
                 break;
             }
@@ -131,42 +131,52 @@ client.on('message', message => {
                     return;
                 }
 
-                MayushiiProcessor.volume(message.author, message, volume);
+                MayushiiProcessor.volume(message, message.author, volume);
+
+                break;
+            }
+
+            case 'files': {
+                MayushiiProcessor.listFiles(message, message.author, message.guild);
 
                 break;
             }
 
             case 'byebye': {
-                MayushiiProcessor.kill(message.author);
+                MayushiiProcessor.kill(message, message.author);
 
                 break;
             }
 
             default: {
-                MayushiiProcessor.play(voiceChannel, command);
+                MayushiiProcessor.play(message, voiceChannel, command);
 
                 break;
             }
         }
     };
 
-
-    let voiceChannel = message.member.voiceChannel;
-    if (!voiceChannel) {
-        if (message.guild) {
-            message.guild.fetchMember(client.user).then(guildMember => {
-                voiceChannel = guildMember.voiceChannel;
+    try {
+        let voiceChannel = message ? message.member ? message.member.voiceChannel : null : null;
+        if (!voiceChannel) {
+            if (message.guild) {
+                message.guild.fetchMember(client.user).then(guildMember => {
+                    voiceChannel = guildMember.voiceChannel;
+                    commandSwitch(voiceChannel, messageParts);
+                });
+            } else {
                 commandSwitch(voiceChannel, messageParts);
-            });
+            }
         } else {
-            message.reply('You\'re not in a server.');
+            commandSwitch(voiceChannel, messageParts);
         }
-    } else {
-        commandSwitch(voiceChannel, messageParts);
+    } catch (error) {
+        console.error('Error: ', error);
     }
 });
 
-const onExit = () => {
+const onExit = (code) => {
+    console.error('Code: ', code);
     client.destroy();
     process.exit(0);
 };
@@ -176,4 +186,4 @@ process.on('exit', onExit);
 process.on('SIGINT', onExit);
 process.on('SIGUSR1', onExit);
 process.on('SIGUSR2', onExit);
-process.on('uncaughtException', onExit);
+// process.on('uncaughtException', onExit);
